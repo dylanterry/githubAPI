@@ -16,6 +16,6 @@ html, body {
 /*Text class styling*/
 
 .text {
-  fill: white;
+  fill: black;
   font-family: sans-serif
 }

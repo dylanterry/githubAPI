@@ -119,6 +119,25 @@ svg.selectAll("text")
            .attr("class", "text")
            .attr("x", function(d, i) {return (i * 120) + 36})
            .attr("y", function(d, i) {return 125 });
+    
+var headings = svg
+            .data(dataArray)
+            .enter().append("headings")
+            .text(function(d, i) {if (i=0)return "Followers"
+                            else if (i=1)return "Following"
+                                else return "Repos"})
+            .style("font", "20px times")
+           .attr("class", "text")
+           .attr("x", function(d, i) {return (i * 120) + 50})
+           .attr("y", function(d, i) {return 70 });
+    
+    var line = svg.append("line")
+                .attr("x1", 30)
+                .attr("y1", 100)
+                .attr("x2", 400)
+                .attr("y2", 100)
+                .attr("stroke", "black")
+                
 }
     </script>
 </body>
