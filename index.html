@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html">
+  <title>Github API </title>
+  <meta name="author" content="Dylan Terry">
+  <link rel="stylesheet" type="text/css" media="all" href="css/styles.css">
+    <link rel = "stylesheet" type="text/css" href="css/style.css">
+  <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    
+</head>
+
+<body>
+  <div id="w">
+    <h1>Github API Webapp</h1>
+    <p>Enter a single Github username.</p>
+    
+    <input type="text" name="username" id="username" placeholder="Github username...">
+    
+    <a href="#" id="ghsubmitbtn">Pull Data</a>
+    
+    <div id="GitData" class="clearfix"></div>
+  </div>
+<script type="text/javascript">
+$(function(){
+  $('#ghsubmitbtn').on('click', function(x){
+    x.preventDefault();
+    $('#GitData').html('<div id="loader"><img src="css/loader.gif" alt="loading..."></div>');
+    
+    var username = $('#username').val();
+    var userData   = 'https://api.github.com/users/'+username;
+    var repoData  = 'https://api.github.com/users/'+username+'/repos';
+    
+    requestJSON(userData, function(json) {
+      if(json.message == "Not Found" || username == '') {
+        $('#GitData').html("<h2>No User Info Found</h2>");
+      }
+      
+      else {
+    var arr =[json.followers,json.following,json.public_repos ];
+          test(arr);
+        // else we have a user and we display their info
+        var fullname   = json.name;
+        var username   = json.login;
+        var aviurl     = json.avatar_url;
+        var profileurl = json.html_url;
+        var location   = json.location;
+        var followersnum = json.followers;
+        var followingnum = json.following;
+        var reposnum     = json.public_repos;
+        
+        if(fullname == undefined) { fullname = username; }
+        
+        var outhtml = '<h2>'+fullname+' <span class="smallname">(@<a href="'+profileurl+'" target="_blank">'+username+'</a>)</span></h2>';
+        outhtml = outhtml + '<div class="ghcontent"><div class="avi"><a href="'+profileurl+'" target="_blank"><img src="'+aviurl+'" width="80" height="80" alt="'+username+'"></a></div>';
+        outhtml = outhtml + '<p>Followers: '+followersnum+' - Following: '+followingnum+'<br>Repos: '+reposnum+'</p></div>';
+        outhtml = outhtml + '<div class="repolist clearfix">';
+        
+        var repos;
+        $.getJSON(repoData, function(json){
+          repos = json;   
+          outputPut();                
+        });          
+        
+        function outputPut() {
+          if(repos.length == 0) { outhtml = outhtml + '<p>No repos</p></div>'; }
+          else {
+            outhtml = outhtml + '<p><strong>Repos List:</strong></p> <ul>';
+            $.each(repos, function(index) {
+              outhtml = outhtml + repos[index].name+" ";
+            });
+            outhtml = outhtml + '</ul></div>'; 
+          }
+          $('#GitData').html(outhtml);
+        } 
+      } 
+    }); 
+  }); 
+  
+  function requestJSON(url, callback) {
+    $.ajax({
+      url: url,
+      complete: function(xhr) {
+        callback.call(null, xhr.responseJSON);
+      }
+    });
+  }
+});
+</script>
+    <script>
+function test(arr){
+        // Create data array of values to visualize
+var dataArray = arr;
+
+// Create variable for the SVG
+var svg = d3.select("body").append("svg")
+          .attr("height","100%")
+          .attr("width","100%");
+
+// Select, append to SVG, and add attributes to rectangles for bar chart
+svg.selectAll("rect")
+    .data(dataArray)
+    .enter().append("rect")
+          .attr("class", "bar")
+          .attr("height", function(d, i) {return (d * 10)})
+          .attr("width","40")
+          .attr("x", function(d, i) {return (i * 60) + 25})
+          .attr("y", function(d, i) {return 400 - (d * 10)});
+
+// Select, append to SVG, and add attributes to text
+svg.selectAll("text")
+    .data(dataArray)
+    .enter().append("text")
+    .text(function(d) {return d})
+           .attr("class", "text")
+           .attr("x", function(d, i) {return (i * 60) + 36})
+           .attr("y", function(d, i) {return 415 - (d * 10)});
+}
+    </script>
+</body>
+</html>
