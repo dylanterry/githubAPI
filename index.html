@@ -8,11 +8,28 @@
   <link rel="stylesheet" type="text/css" media="all" href="css/styles.css">
     <link rel = "stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
     
 </head>
 
 <body>
+    <style>
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
+}
+
+</style>
+<svg width="960" height="500"></svg>
+
   <div id="w">
     <h1>Github API Webapp</h1>
     <p>Enter a single Github username.</p>
@@ -40,7 +57,8 @@ $(function(){
       
       else {
     var arr =[json.followers,json.following,json.public_repos ];
-          test(arr);
+          //test(arr);
+          test2(arr);
         // else we have a user and we display their info
         var fullname   = json.name;
         var username   = json.login;
@@ -90,55 +108,53 @@ $(function(){
 });
 </script>
     <script>
-function test(arr){
-        // Create data array of values to visualize
-var dataArray = arr;
+       
+       function test2(arr2){
+           var dataArray = arr2;
+           var headingsArray = ["Followers", "Following", "Repos"];
+           
+    var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
 
-// Create variable for the SVG
-var svg = d3.select("body").append("svg")
-          .attr("height","100%")
-          .attr("width","100%");
+var x = d3.scaleBand().rangeRound([0,                                               400]).paddingInner(0.1), 
+    y = d3.scaleLinear().rangeRound([height, 0]);
 
-// Select, append to SVG, and add attributes to rectangles for bar chart
-svg.selectAll("rect")
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  x.domain(["Followers", "Following", "Repos"]);
+  y.domain([0, d3.max(dataArray, function(d) { return d})]);
+
+  g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y).ticks(10, "%"))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Frequency");
+
+  g.selectAll(".bar")
     .data(dataArray)
     .enter().append("rect")
-          .style("fill","red")
-          .attr("class", "bar")
-          .attr("height", function(d) {return d})
-          .attr("width",100)
-          .attr("x", function(d, i) {return (i * 120) + 25})
-          .attr("y", function(d, i) {return 110});
+      .attr("class", "bar")
+      .attr("x", function(d,i) { return (i*120)+50;})
+      .attr("y", function(d) { return y(d); })
+      .attr("width", 100)
+      .attr("height", function(d) { return height - y(d); });
 
-// Select, append to SVG, and add attributes to text
-svg.selectAll("text")
-    .data(dataArray)
-    .enter().append("text")
-    .text(function(d) {return d})
-            .style("font", "20px times")
-           .attr("class", "text")
-           .attr("x", function(d, i) {return (i * 120) + 36})
-           .attr("y", function(d, i) {return 125 });
-    
-var headings = svg
-            .data(dataArray)
-            .enter().append("headings")
-            .text(function(d, i) {if (i=0)return "Followers"
-                            else if (i=1)return "Following"
-                                else return "Repos"})
-            .style("font", "20px times")
-           .attr("class", "text")
-           .attr("x", function(d, i) {return (i * 120) + 50})
-           .attr("y", function(d, i) {return 70 });
-    
-    var line = svg.append("line")
-                .attr("x1", 30)
-                .attr("y1", 100)
-                .attr("x2", 400)
-                .attr("y2", 100)
-                .attr("stroke", "black")
-                
-}
+
+
+           
+        }
     </script>
 </body>
 </html>
