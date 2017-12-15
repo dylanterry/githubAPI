@@ -125,11 +125,12 @@ a:hover {
 .smallname {
   font-size: 0.75em;
   color: #a9a9a9;
+    text-align: right;
   font-style: italic;
 }
 
 .avi {
-  
+  float: left;
   margin-right: 7px;
   margin-bottom: 7px;
 }
